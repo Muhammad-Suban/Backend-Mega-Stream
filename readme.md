@@ -7,4 +7,8 @@
 
 -2 -- file upload in cloudinary using multer
        ....
-       (multer,cloudinary)
+       (multer,cloudinary)  
+       
+       this sprint i'm not work consistently
+
+3 sprint: inshallah i make sure the consistency  
