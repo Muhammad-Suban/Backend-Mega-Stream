@@ -1,6 +1,6 @@
 // this utils make for api Error handling
 
-// Error class rxtends from node js gives error
+// Error class extends from node js gives error
 class apiErrors extends Error {
   constructor(
     statusCode,

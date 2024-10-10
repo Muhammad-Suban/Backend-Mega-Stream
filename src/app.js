@@ -11,8 +11,17 @@ app.use(cors({
     crediantials: true
 }))
 app.use(express.json({limit:"12kb"}));                         // for json data parsing
-app.use(cookieParser());                                       //for cookie parsing
 app.use(express.urlencoded({limit:"12kb" ,extended: true }));  // for url encoded form data
-app.use(express.static('public'))                              // for images and icons
+app.use(express.static("public"))                              // for images and icons
+app.use(cookieParser());                                       // for cookie parsing
 
-export default app;
+// import routes
+import {userRouter} from "./routes/user.routes.js"
+
+// declare routes
+app.use("api/v1/users",userRouter)
+
+
+
+
+export {app}

@@ -89,4 +89,4 @@ userSchema.methods.generateRefreshToken = function () {
       );
 };
 
-export const User = mongoose.model("Video", userSchema);
+export const User = mongoose.model("User", userSchema);
