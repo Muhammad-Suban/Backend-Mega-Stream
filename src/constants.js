@@ -1,1 +1,1 @@
-export const DB_NAME = 'STREAM ON';
+export const DB_NAME = 'STREAM_ON';

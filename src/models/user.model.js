@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 
 const userSchema = new Schema(
   {
-    username: {
+    userName: {
       type: String,
       required: true,
       unique: true,
@@ -17,7 +17,7 @@ const userSchema = new Schema(
       required: true,
       unique: true,
       lowercase: true,
-      validate: [emailValidator, "Please enter a valid email"],
+      // validate: [emailValidator, "Please enter a valid email"],
     },
     fullName: {
       type: String,
@@ -63,7 +63,6 @@ userSchema.pre("save", async function (next) {
 // own create method in previos used save is predefined method
 userSchema.methods.passwordIsMatch = async function (password) {
   return await bcrypt.compare(password, this.password);
-  
 };
 
 // create jwt tokens
@@ -80,13 +79,13 @@ userSchema.methods.generateAccessToken = function () {
   );
 };
 userSchema.methods.generateRefreshToken = function () {
-    return jwt.sign(
-        {
-          _id: this._id,
-        },
-        process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: REFRESH_TOKEN_EXPIRY }
-      );
+  return jwt.sign(
+    {
+      _id: this._id,
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: REFRESH_TOKEN_EXPIRY }
+  );
 };
 
 export const User = mongoose.model("User", userSchema);

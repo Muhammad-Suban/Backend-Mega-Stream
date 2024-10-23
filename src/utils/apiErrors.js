@@ -1,7 +1,7 @@
 // this utils make for api Error handling
 
 // Error class extends from node js gives error
-class apiErrors extends Error {
+class apiError extends Error {
   constructor(
     statusCode,
     message = "Something Went Wrong",
@@ -23,4 +23,4 @@ class apiErrors extends Error {
     }
   }
 }
-export { apiErrors };
+export { apiError };

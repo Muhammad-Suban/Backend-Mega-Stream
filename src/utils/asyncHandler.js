@@ -1,7 +1,7 @@
 // 1st approch 
 // to set all async fx
 const asyncHandler = (reqHandlerFn) => {
-  return (req, next, res) => {
+  return (req, res, next) => {
     Promise.resolve(reqHandlerFn(req, res, next)).catch((error) => next(error));
   };
 };
