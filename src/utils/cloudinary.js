@@ -5,9 +5,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 cloudinary.config({
 
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: "mss-cloud",
+  api_key: "748661539366767",
+  api_secret: "tkeNDGb-1i6CmExcCanQG1pK_u4",
 });
 
 
@@ -30,22 +30,22 @@ const uploadOnCloudinary = async (filePath) => {
       resource_type: 'auto',
     });
 
-    console.log('File uploaded successfully to Cloudinary:', response.url);
-
+    // console.log('File uploaded successfully to Cloudinary:', response.url);
+    // fs.unlinkSync(filePath)
     return response;
     
   } catch (error) {
     // Log the full error message and details
     console.error('Error uploading file to Cloudinary:', error.message);
-    if (error.http_code) {
-      console.error('HTTP Code:', error.http_code);
-    }
-    if (error.api_code) {
-      console.error('Cloudinary API Code:', error.api_code);
-    }
-    if (error.stack) {
-      console.error('Stack trace:', error.stack);
-    }
+    // if (error.http_code) {
+    //   console.error('HTTP Code:', error.http_code);
+    // }
+    // if (error.api_code) {
+    //   console.error('Cloudinary API Code:', error.api_code);
+    // }
+    // if (error.stack) {
+    //   console.error('Stack trace:', error.stack);
+    // }
 
     // Delete the file from the local server if it wasn't uploaded successfully
     if (fs.existsSync(filePath)) {
