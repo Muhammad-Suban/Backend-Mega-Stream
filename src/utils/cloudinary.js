@@ -31,21 +31,10 @@ const uploadOnCloudinary = async (filePath) => {
     });
 
     // console.log('File uploaded successfully to Cloudinary:', response.url);
-    // fs.unlinkSync(filePath)
+    fs.unlinkSync(filePath)
     return response;
     
   } catch (error) {
-    // Log the full error message and details
-    console.error('Error uploading file to Cloudinary:', error.message);
-    // if (error.http_code) {
-    //   console.error('HTTP Code:', error.http_code);
-    // }
-    // if (error.api_code) {
-    //   console.error('Cloudinary API Code:', error.api_code);
-    // }
-    // if (error.stack) {
-    //   console.error('Stack trace:', error.stack);
-    // }
 
     // Delete the file from the local server if it wasn't uploaded successfully
     if (fs.existsSync(filePath)) {

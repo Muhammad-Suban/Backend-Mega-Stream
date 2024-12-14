@@ -18,7 +18,7 @@ export const JWTVerify = asyncHandler(async (req, res,next) => {
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
     const user = await User.findById(decodedToken?._id) //check generate refresh token fx we deined _id
-      .select("-password -refreshToke");
+      .select("-password -refreshToken");
 
     if (!user) {
       throw new apiError(401, "Invalid token");
