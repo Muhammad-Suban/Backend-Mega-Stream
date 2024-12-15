@@ -11,4 +11,3 @@
        
        this sprint i'm not work consistently
 
-3 sprint: inshallah i make sure the consistency  
