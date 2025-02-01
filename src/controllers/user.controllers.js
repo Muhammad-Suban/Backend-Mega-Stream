@@ -403,7 +403,7 @@ const getChannelDetails = asyncHandler(async (req, res) => {
   const channel = await User.aggregate([
     // {},{},{}  add multiplr pipelines
     {
-      // it match field in all fields alternative of findByID
+      // it match req field in all fields  ( alternative of findByID
       $match: { userName: userName?.toLowerCase() },
     },
     {
@@ -473,8 +473,6 @@ const getChannelDetails = asyncHandler(async (req, res) => {
   .json(
     new apiResponse(201,channel[0],"user Channel fetch Succesfully")
   )
-
-  
 });
 
 
