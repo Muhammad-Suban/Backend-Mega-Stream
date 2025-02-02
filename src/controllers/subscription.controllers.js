@@ -10,45 +10,43 @@ const toggleSubscription = asyncHandler(async (req, res) => {
   if (!channelId.trim()) {
     throw new apiError(400, "Channel ID is required");
   }
-  const channel = await User.findById(
-    channelId,
-  );
+  const channel = await User.findById(channelId);
   if (!channel) {
     throw new apiError(404, "Channel not found");
   }
   const existingSubscription = await Subscription.findOne({
-    channel:channelId,
-    subscriber:req.user?._id
-  })
-  if (existingSubscription) { // it means user subscive the channel
-    Subscription.deleteOne({
-       channel: channelId,
-       subscriber: req.user._id
-     })
-     return res
-     .status(200)
-     .json(new apiResponse(200, "Subscription removed successfully"));
-    }
-    else { // it means user not subscribe the channel
-        Subscription.create({
-            channel:channel,
-            subscriber: req.user._id
-        })
-        return res
-        .status(201)
-        .json(new apiResponse(201, "Subscription created successfully"));
-    }
-
+    channel: channelId,
+    subscriber: req.user?._id,
+  });
+  if (existingSubscription) {
+    // it means user subscive the channel
+    await Subscription.deleteOne({
+      channel: channelId,
+      subscriber: req.user._id,
+    });
+    return res
+      .status(200)
+      .json(new apiResponse(200, "Subscription removed successfully"));
+  } else {
+    // it means user not subscribe the channel
+    await Subscription.create({
+      channel: channelId,
+      subscriber: req.user._id,
+    });
+    return res
+      .status(201)
+      .json(new apiResponse(201, "Subscription created successfully"));
+  }
 });
 
 // controller to return subscriber list of a channel
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
-  const { channelId } = req.params;
+  const { subscriberId } = req.params;
   // TODO: get subscriber list of a channel
   const subscribers = await Subscription.aggregate([
     {
       $match: {
-        channel: mongoose.Types.ObjectId(channelId),
+        channel: new mongoose.Types.ObjectId(subscriberId),
       },
     },
     {
@@ -75,21 +73,23 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
   if (!subscribers.length) {
     throw new apiError(404, "No subscribers found for this channel");
   }
+  console.log(subscribers)
+  console.log(subscribers[0])
   return res
-    .status(201)
-    .json(200, subscribers[0], "Subscriber fetched successfully");
+    .status(200)
+    .json(200, "Subscriber fetched successfully",subscribers[0]);
 });
 
 // controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandler(async (req, res) => {
-  const { subscriberId } = req.params;
-  if (!subscriberId) {
+  const { channelId } = req.params;
+  if (!channelId) {
     throw new apiError(400, "Subscriber ID is required");
   }
 
   const userSubscribedChannelList = await Subscription.aggregate([
     {
-      $match: new mongoose.Types.ObjectId(subscriberId),
+      $match: { subscriber:new mongoose.Types.ObjectId(channelId) },
     },
     {
       $lookup: {
@@ -100,7 +100,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
       },
     },
     {
-      $unwind: "channelInfo",
+      $unwind: "$channelInfo",
     },
     {
       $project: {
@@ -114,7 +114,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
     throw new apiError(404, "No subscribed channels found for this user");
   }
   return res
-    .status(201)
+    .status(200)
     .json(
       200,
       userSubscribedChannelList[0],

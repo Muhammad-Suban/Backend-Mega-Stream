@@ -7,10 +7,10 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
+  let { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
 
-  page = Number(page);
-  limit = Number(limit);
+  page = Number(page) || 1;
+  limit = Number(limit) || 10;
 
   // Build the filter object
   const filter = {};
@@ -26,11 +26,12 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
   // Count documents that match the filter
   const totalVideos = await Video.countDocuments(filter);
-  const totalPages = Math.ceil(totalVideos / limit);
+  let totalPages = Math.ceil(totalVideos / limit);
 
   // Build the sorting object
   const sortOptions = {};
-  sortOptions[sortBy] = sortType.toLowerCase() === "asc" ? 1 : -1;
+  const sortTypeValue = sortType ? sortType.toLowerCase() : "asc"; // Default to 'asc' if sortType is undefined
+  sortOptions[sortBy] = sortTypeValue === "asc" ? 1 : -1;
 
   // Fetch videos with filtering, sorting, and pagination
   const videos = await Video.find(filter)
@@ -68,6 +69,9 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
   const videoPath = req.files.videoFile[0]?.path; // Video file path
   const thumbnailPath = req.files.thumbnailFile[0]?.path; // Thumbnail file path
+  console.log("check video path", videoPath);
+  console.log("check thumb path", thumbnailPath);
+  console.log("Experiment", req.files);
 
   const videoResponse = await uploadOnCloudinary(videoPath); // Upload video
   const thumbnailResponse = await uploadOnCloudinary(thumbnailPath); // Upload thumbnail
@@ -75,14 +79,13 @@ const publishAVideo = asyncHandler(async (req, res) => {
   if (!videoResponse?.url || !thumbnailResponse?.url) {
     throw new apiError(400, "Error while uploading files to Cloudinary");
   }
-
   const createdVideo = await Video.create({
     title,
     description,
     videoFile: videoResponse.url,
-    thumbnail: thumbnailResponse.url,
+    thumbnailFile: thumbnailResponse.url,
     duration: videoResponse.duration,
-    ownerName: userId,
+    ownerName: req.user?._id,
     isPublished: true,
   });
 
@@ -128,8 +131,8 @@ const updateVideo = asyncHandler(async (req, res) => {
   // const updatedThumbnailPath = req.files?.Thumbnail[0]?.path
 
   if (videoId) {
-    const owner = Video.findById(videoId);
-    if (owner.ownerName.toString() !== userId.toString()) {
+    const owner = await Video.findById(videoId);
+    if (owner.ownerName.toString() !== req.user?._id.toString()) {
       throw new apiError(403, "You are not allowed to update this video");
     }
   }
@@ -137,11 +140,14 @@ const updateVideo = asyncHandler(async (req, res) => {
   let updatedThumbnail;
   if (req.file?.path) {
     const updatedThumbnailPath = req.file?.path;
-    const cloudinarThumbnail = await uploadOnCloudinary(updatedThumbnailPath);
-    if (!cloudinarThumbnail || !cloudinarThumbnail.thumbnailUrl) {
+    console.log(updatedThumbnailPath)
+    const thumbnailFile = await uploadOnCloudinary(updatedThumbnailPath);
+    if (!thumbnailFile.url) {
       throw new apiError(400, "Error while uploading to cloudinary");
     }
-    updatedThumbnail = cloudinarThumbnail.thumbnailUrl;
+    console.log(thumbnailFile)
+    updatedThumbnail = thumbnailFile.url;
+    console.log(updatedThumbnail)
   }
   const updateVideo = await Video.findByIdAndUpdate(
     videoId,
@@ -149,7 +155,8 @@ const updateVideo = asyncHandler(async (req, res) => {
       $set: {
         ...(title && { title }),
         ...(description && { description }),
-        ...(updatedThumbnail && { thumbnail: updatedThumbnail }),
+        // ...(updatedThumbnail && { updatedThumbnail }),
+        ...(updatedThumbnail && {thumbnailFile: updatedThumbnail})
       },
     },
     {
@@ -174,7 +181,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
     throw new apiError(400, "Video ID is required or incorrect format");
   }
   const videoOwner = await Video.findById(videoId);
-  if (!videoOwner.ownerName.toString() !== userId.toString()) {
+  if (videoOwner.ownerName.toString() !== userId.toString()) {
     throw new apiError(403, "You are not allowed to delete this video");
   }
 
@@ -194,7 +201,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     throw new apiError(400, "Video ID is required or incorrect format");
   }
   const videoOwner = await Video.findById(videoId);
-  if (!videoOwner.ownerName.toString() !== userId.toString()) {
+  if (videoOwner.ownerName.toString() !== userId.toString()) {
     throw new apiError(
       403,
       "You are not allowed to toggle publish status of this video"

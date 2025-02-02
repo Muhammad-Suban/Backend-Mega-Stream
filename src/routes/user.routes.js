@@ -12,8 +12,8 @@ import {
   getChannelDetails,
   getWatchHistory,
 } from "../controllers/user.controllers.js";
-import { upload } from "../midllewares/multer.middleware.js";
-import { JWTVerify } from "../midllewares/auth.middleware.js";
+import { upload } from "../middlewares/multer.middleware.js";
+import { JWTVerify } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 

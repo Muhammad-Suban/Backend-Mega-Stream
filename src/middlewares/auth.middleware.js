@@ -1,7 +1,7 @@
 // custom Middleware to insert token in response
 
 import { User } from "../models/user.model.js";
-import { apiError } from "../utils/apiErrors.js";
+import { apiError } from "../utils/apiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
 

@@ -1,34 +1,40 @@
 import mongoose, { isValidObjectId } from "mongoose";
-import { Tweet } from "../models/tweet.model.js";
+import { Tweet } from "../models/tweets.model.js";
 import { User } from "../models/user.model.js";
 import { apiError } from "../utils/apiError.js";
 import { apiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 const createTweet = asyncHandler(async (req, res) => {
-  const { tweet } = req.body;
+  const { content } = req.body;
+  console.log("Received content:", content);
+  
   const user = req.user;
-  if (!tweet) {
+  if (!content) {
     throw new apiError(400, "Tweet is empty");
   }
+  
   const CreateTweet = await Tweet.create({
-    content: tweet,
+    content,
     owner: user?._id,
   });
+
   if (!CreateTweet) {
     throw new apiError(500, "Failed to create tweet");
   }
+
   return res
     .status(201)
     .json(new apiResponse(201, CreateTweet, "Tweet created successfully"));
 });
+
 
 const getUserTweets = asyncHandler(async (req, res) => {
   const { userId } = req.params;
   if (!userId || !isValidObjectId(userId)) {
     throw new apiError(400, "User ID is required");
   }
-  const validate = await User.findById(user_id);
+  const validate = await User.findById(userId);
   if (!validate) {
     throw new apiError(404, "User not found");
   }
@@ -70,7 +76,7 @@ const updateTweet = asyncHandler(async (req, res) => {
 });
 
 const deleteTweet = asyncHandler(async (req, res) => {
-  const { tweetId } = req.body;
+  const { tweetId } = req.params;
   const userId = req.user;
   if (!tweetId) {
     throw new apiError(400, "Tweet ID is required");

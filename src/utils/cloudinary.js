@@ -31,24 +31,24 @@ const uploadOnCloudinary = async (filePath) => {
     });
 
 
-    // console.log('File uploaded successfully to Cloudinary:', response.url);
+    console.log('File uploaded successfully to Cloudinary:', response.url);
     fs.unlinkSync(filePath);
-    // return response;
+    return response;
 
 
     // chat gpt ediionz
     // For Video and Thumbnail pload
-    if (response.resource_type === "video") {
-      return {
-        videoUrl: response.url,
-        thumbnailUrl: response.thumbnail_url,
-      };
-    } else {
-      // for only image upload like user resiftraion avatoe
-      return {
-        url: response.url, // For images or other file types
-      };
-    }
+    // if (response.resource_type === "video") {
+    //   return {
+    //     videoUrl: response.url,
+    //     thumbnailUrl: response.thumbnail_url,
+    //   };
+    // } else {
+    //   // for only image upload like user resiftraion avatoe
+    //   return {
+    //     url: response.url, // For images or other file types
+    //   };
+    // }
 
 
   } catch (error) {

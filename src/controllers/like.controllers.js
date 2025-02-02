@@ -1,5 +1,5 @@
 import mongoose, { isValidObjectId } from "mongoose";
-import { Like } from "../models/like.model.js";
+import { Like } from "../models/likes.model.js";
 import { apiError } from "../utils/apiError.js";
 import { apiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -46,10 +46,12 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
   if (!user) {
     throw new apiError(401, "User not authenticated");
   }
-  const alreadyLikeComment = Like.findOne({
+  const alreadyLikeComment =await Like.findOne({
     comment: commentId,
     likedBy: user._id,
   });
+  console.log(alreadyLikeComment)
+  
   if (alreadyLikeComment) {
     await alreadyLikeComment.deleteOne();
     return res
@@ -108,6 +110,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
   }
   const likeAllVideos = await Like.find({
     likedBy: userId,
+    video: { $exists: true },
   });
   if (!likeAllVideos) {
     throw new apiError(404, "No likes found");

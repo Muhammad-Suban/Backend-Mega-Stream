@@ -15,8 +15,8 @@ const getVideoComments = asyncHandler(async (req, res) => {
   if (!videoId) {
     throw new apiError(400, "Video ID is required");
   }
-  const getComments = await Comment.findById({videoId})
-    .populate("video", videoTitle)
+  const getComments = await Comment.find({video:videoId})
+    .populate("video", "videoTitle")
     .populate("owner", "userName");
 
   if (!getComments) {
@@ -63,14 +63,14 @@ const getVideoComments = asyncHandler(async (req, res) => {
 
 const addComment = asyncHandler(async (req, res) => {
   // TODO: add a comment to a video
-  const { userComment } = req.body;
+  const { content } = req.body;
   const { videoId } = req.params;
   const userId = req.user._id;
 
   if (!videoId) {
     throw new apiError(400, "Video ID is required");
   }
-  if (!userComment) {
+  if (!content) {
     throw new apiError(400, "Comment is required");
   }
   if (!userId) {
@@ -78,7 +78,7 @@ const addComment = asyncHandler(async (req, res) => {
   }
 
   const newComment = await Comment.create({
-    content: userComment,
+    content: content,
     owner: userId,
     video: videoId,
   });

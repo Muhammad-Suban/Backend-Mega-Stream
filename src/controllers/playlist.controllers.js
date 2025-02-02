@@ -6,9 +6,10 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 const createPlaylist = asyncHandler(async (req, res) => {
   const { name, description } = req.body;
-  const { user } = req.user;
+  const user  = req.user;
 
-  if (![name, description, user].every((item) => item && item.trim() !== "")) {
+  console.log(name,description,user)
+  if (![name, description].every((item) => item && item.trim() !== "")) {
     throw new apiError(400, "All fields are required");
   }
 
@@ -97,12 +98,12 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
 
-  const { playlistId, videoId } = req.params;
+  const { videoId,playlistId } = req.params;
   if (!playlistId || !videoId || !isValidObjectId(videoId)) {
     throw new apiError(400, "Playlist ID or video id  is required");
   }
   // for better optimization
-  const playlist = await playlist.findbyId(playlistId);
+  const playlist = await Playlist.findById(playlistId);
   if (!playlist) {
     throw new apiError(404, "Playlist not found");
   }
