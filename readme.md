@@ -11,3 +11,7 @@
        
        this sprint i'm not work consistently
 
+
+  "dev": "nodemon src/index.js",
+
+
