@@ -1,6 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { apiError } from "../utils/apiError.js";
-import { apiResponse } from "../utils/apiResponse.js"
+import { apiResponse } from "../utils/apiResponse.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
@@ -85,7 +85,7 @@ const userRegister = asyncHandler(async (req, res) => {
     fullName,
     email,
     password,
-    userName: userName.toLowerCase(),
+    userName: userName,
     avator: avator.url,
     coverImage: coverImage.url || "",
   });
@@ -187,8 +187,8 @@ const userLogout = asyncHandler(async (req, res) => {
       $set: { refreshToken: undefined },
     },
     // {
-    //   $unset: { 
-    //     refreshToken: 1  // unset empty the field if the flag is on! 
+    //   $unset: {
+    //     refreshToken: 1  // unset empty the field if the flag is on!
     //   },
     // },
     {
@@ -210,37 +210,36 @@ const userLogout = asyncHandler(async (req, res) => {
 // generate new access token from refresh token
 // after expire we refresh the token user no need to signin again
 const accessRefreshTokens = asyncHandler(async (req, res) => {
-  
   const incommingRefreshToken =
-  req.cookie?.refreshToken || req.body?.refreshToken;
-  
+    req.cookie?.refreshToken || req.body?.refreshToken;
+
   if (!incommingRefreshToken) {
     throw new apiError(401, "can't get token");
   }
-  
+
   try {
     const decodedToken = jwt.verify(
-        incommingRefreshToken,
-        process.env.REFRESH_TOKEN_SECRET
-    )
+      incommingRefreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
 
-    const user = await User.findById(decodedToken?._id)
+    const user = await User.findById(decodedToken?._id);
 
     if (!user) {
-        throw new apiError(401, "Invalid refresh token")
+      throw new apiError(401, "Invalid refresh token");
     }
 
     if (incommingRefreshToken !== user?.refreshToken) {
-        throw new apiError(401, "Refresh token is expired or used")
-        
+      throw new apiError(401, "Refresh token is expired or used");
     }
 
     const options = {
-        httpOnly: true,
-        secure: true
-    }
+      httpOnly: true,
+      secure: true,
+    };
 
-    const {accessToken, newRefreshToken} = await generateAccessAndRefereshTokens(user._id)
+    const { accessToken, newRefreshToken } =
+      await generateAccessAndRefereshTokens(user._id);
 
     return res
       .status(201)
@@ -257,7 +256,7 @@ const accessRefreshTokens = asyncHandler(async (req, res) => {
         )
       );
   } catch (error) {
-    throw new apiError(201, "Invalid refresh Token to re-generate",error);
+    throw new apiError(201, "Invalid refresh Token to re-generate", error);
   }
 });
 
@@ -283,7 +282,9 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
   return res
     .status(201)
-    .json(new apiResponse(201, {newPassword}, "passrord changed Successully"));
+    .json(
+      new apiResponse(201, { newPassword }, "passrord changed Successully")
+    );
 });
 
 const currentUser = asyncHandler(async (req, res) => {
@@ -291,7 +292,7 @@ const currentUser = asyncHandler(async (req, res) => {
   // 2* return user data with token
   return res
     .status(201)
-    .json(new apiResponse(201, req.user, "Current User Successfully"));
+    .json(new apiResponse(201, "Current User Successfully",req.user, ));
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
@@ -442,108 +443,124 @@ const getChannelDetails = asyncHandler(async (req, res) => {
             then: true,
             else: false,
           },
-        }, 
+        },
       },
-    }, 
+    },
     {
       // it give neccassay field (1 means flag on) and remove uncessary field
-      $project:{
-        userName:1,
-        email:1,
-        fullName:1,
-        avator:1,
-        coverImage:1,
-        isSubscribedOrNot:1,
-        subscribersCount:1,
-        channelSubscriberToCount:1
-      }
-    }
-
+      $project: {
+        userName: 1,
+        email: 1,
+        fullName: 1,
+        avator: 1,
+        coverImage: 1,
+        isSubscribedOrNot: 1,
+        subscribersCount: 1,
+        channelSubscriberToCount: 1,
+      },
+    },
   ]);
 
-  if(!channel?.length){
-    throw new apiError(401,"channel does not exist")
+  if (!channel?.length) {
+    throw new apiError(401, "channel does not exist");
   }
 
   //assingment understand and read what channel return
-  console.log(channel)
+  console.log(channel);
 
   return res
-  .status(201)
-  .json(
-    new apiResponse(201,channel[0],"user Channel fetch Succesfully")
-  )
+    .status(201)
+    .json(new apiResponse(201, channel[0], "user Channel fetch Succesfully"));
 });
 
-
-const getWatchHistory = asyncHandler(async(req,res) => {
+const getWatchHistory = asyncHandler(async (req, res) => {
   // we used sub pipelines (apply nested agregation pipelines)
   // 1) 1P first pipeline $match user id
   // 2) 2P $lookup to gel all docs from (user to video model)
-     // 2.1) 2.1P $lookup to get video owner (video to user model)
-          // 2.1.1) 2.2.1P $project to get selectef fields from user
+  // 2.1) 2.1P $lookup to get video owner (video to user model)
+  // 2.1.1) 2.2.1P $project to get selectef fields from user
 
-     // 2.2) 2.2P $add field to get 0 elem of watchhistory $first(value of array)   
+  // 2.2) 2.2P $add field to get 0 elem of watchhistory $first(value of array)
   // 3) return res user
-  const user =  await User.aggregate([
+  const user = await User.aggregate([
     {
-      $match:{
-        // _id:req.user._id,  -->not correct in aggregation pipeline data direct store mongo not hanfle in backstage 
-        _id: new mongoose.Types.ObjectId(req.user._id) //_id return in string so we convert in object
-      }
+      $match: {
+        // _id:req.user._id,  -->not correct in aggregation pipeline data direct store mongo not hanfle in backstage
+        _id: new mongoose.Types.ObjectId(req.user._id), //_id return in string so we convert in object
+      },
     },
     {
-      $lookup:{
-        from:"videos",
-        localField:"watchHistory",
-        foreignField:"_id",
-        as:"watchHistory",
+      $lookup: {
+        from: "videos",
+        localField: "watchHistory",
+        foreignField: "_id",
+        as: "watchHistory",
         // 2 nested pipelines
-        pipeline:[
+        pipeline: [
           {
-            $lookup:{
-              from:"users",
-              localField:"ownerName",
-              foreignField:"_id",
-              as:"owner",
+            $lookup: {
+              from: "users",
+              localField: "ownerName",
+              foreignField: "_id",
+              as: "owner",
               //super 2.1 nested pipelines
-              pipeline:[
+              pipeline: [
                 {
-                  $project:{
-                    userName:1,
-                    fullName:1,
-                    avator:1,
-                  }
+                  $project: {
+                    userName: 1,
+                    fullName: 1,
+                    avator: 1,
+                  },
                 },
-              ]
-            }
+              ],
+            },
           },
-        //optional
+          //optional
           {
-            $addFields:{
-              owner:{
-                $first:"$owner"  // first give 0 vlaue of array
-              }
-            }
-          }
-       ]
+            $addFields: {
+              owner: {
+                $first: "$owner", // first give 0 vlaue of array
+              },
+            },
+          },
+        ],
+      },
+    },
+  ]);
 
-      }
-    }
-  ])
-
-  if(!user?.length){
-    throw new apiError(401,"error to get user watchHistory")
+  if (!user?.length) {
+    throw new apiError(401, "error to get user watchHistory");
   }
-  console.log("For Testing Phase")
-  console.log(user[0].watchHistory)
+  console.log("For Testing Phase");
+  console.log(user[0].watchHistory);
   return res
-  .status(201)
-  .json(
-    new apiResponse(201,user[0].watchHistory,"watchHistory successfully fetched")
-  )
+    .status(201)
+    .json(
+      new apiResponse(
+        201,
+        user[0].watchHistory,
+        "watchHistory successfully fetched"
+      )
+    );
+});
 
-})
+const getOwnerDetails = asyncHandler(async (req, res) => {
+  const owner = req.query.owner;
+  if (!owner) {
+    throw new apiError(400, "owner is required");
+  }
+  const ownerDetails = await User.findOne({ _id: owner }).select(
+    "-password -refreshToken"
+  );
+  if (!ownerDetails) {
+    throw new apiError(401, "owner not found");
+  }
+  return res
+    .status(201)
+    .json(
+      new apiResponse(201, "Owner details successfully fetched", ownerDetails)
+    );
+});
 
 export {
   userRegister,
@@ -552,9 +569,10 @@ export {
   accessRefreshTokens,
   changeCurrentPassword,
   currentUser,
-  updateAccountDetails, 
+  updateAccountDetails,
   updateUserAvator,
   updateUserCoverImage,
   getChannelDetails,
-  getWatchHistory
+  getWatchHistory,
+  getOwnerDetails,
 };

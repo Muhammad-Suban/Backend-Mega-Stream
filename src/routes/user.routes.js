@@ -11,6 +11,7 @@ import {
   updateUserCoverImage,
   getChannelDetails,
   getWatchHistory,
+  getOwnerDetails,
 } from "../controllers/user.controllers.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { JWTVerify } from "../middlewares/auth.middleware.js";
@@ -42,6 +43,6 @@ router.route("/coverImage").patch(JWTVerify,upload.single("coverImage"),updateUs
 // useparams used in link
 router.route("/c/:userName").get(JWTVerify,getChannelDetails)
 router.route("/history").get(JWTVerify,getWatchHistory) 
-
+router.route("/owner-details").get(getOwnerDetails)
 
 export default router;

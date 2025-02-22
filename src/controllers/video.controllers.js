@@ -45,15 +45,15 @@ const getAllVideos = asyncHandler(async (req, res) => {
     .json(
       new apiResponse(
         200,
+        "Videos fetched successfully",
         { totalVideos, totalPages, currentPage: page, videos },
-        "Videos fetched successfully"
       )
     );
 });
 
 const publishAVideo = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
-  const { userId } = req.user?._id;
+  const { userId } = req.user;
 
   if (
     !title ||
@@ -107,7 +107,7 @@ const getVideoById = asyncHandler(async (req, res) => {
   }
   return res
     .status(200)
-    .json(new apiResponse(200, video, "Video successfully retrieved"));
+    .json(new apiResponse(200, "Video successfully retrieved",video));
 });
 
 const updateVideo = asyncHandler(async (req, res) => {
