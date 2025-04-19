@@ -20,7 +20,7 @@ router
   .post(
     upload.fields([
       { name: "videoFile", maxCount: 1 },
-      { name: "thumbnailFile", maxCount: 1 },
+      { name: "thumbnailFile", maxCount: 1 }, 
     ]),
     publishAVideo,
     JWTVerify
