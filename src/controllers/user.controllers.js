@@ -153,9 +153,9 @@ const userLogin = asyncHandler(async (req, res) => {
   // only server can mofify in cookie cannot access frontend
   const options = {
     httpOnly: true,
-    // secure: true,
+    secure: true,
     // secure: process.env.NODE_ENV === 'production', // Automatically switch based on environment
-    secure: false,
+    // secure: false,
     sameSite: 'None', // Ensure the cookie is sent in cross-origin requests
   };
 
