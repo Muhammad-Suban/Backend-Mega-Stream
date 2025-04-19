@@ -10,6 +10,8 @@ export const JWTVerify = asyncHandler(async (req, res,next) => {
     const token =
       req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer ", "");
+      
+      console.log("Received Token:", token); // 🔥 Debugging: Check token
 
     if (!token) {
       throw new apiError(401, "Invalid token");

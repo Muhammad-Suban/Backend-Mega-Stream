@@ -39,6 +39,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     .skip((page - 1) * limit)
     .limit(limit)
     .exec();
+    console.log("blalasflfpokfsaf",videos)
 
   return res
     .status(200)
