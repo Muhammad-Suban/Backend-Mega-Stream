@@ -201,6 +201,9 @@ const userLogout = asyncHandler(async (req, res) => {
   const options = {
     httpOnly: true,
     secure: true,
+    // secure: process.env.NODE_ENV === 'production', // Automatically switch based on environment
+    // secure: false,
+    sameSite: 'None', // Ensure the cookie is sent in cross-origin requests
   };
 
   return res
