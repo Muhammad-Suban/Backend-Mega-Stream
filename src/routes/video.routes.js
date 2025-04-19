@@ -22,8 +22,8 @@ router
       { name: "videoFile", maxCount: 1 },
       { name: "thumbnailFile", maxCount: 1 }, 
     ]),
+    JWTVerify,
     publishAVideo,
-    JWTVerify
   );
 
 router

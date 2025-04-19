@@ -57,7 +57,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
 const publishAVideo = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
-  const { userId } = req.user;
+  const user = req.user
 
   if (
     !title ||
@@ -75,6 +75,8 @@ const publishAVideo = asyncHandler(async (req, res) => {
   const thumbnailPath = req.files.thumbnailFile[0]?.path; // Thumbnail file path
   console.log("check video path", videoPath);
   console.log("check thumb path", thumbnailPath);
+  console.log("Owner Name",req.user._id)
+  console.log("Owner Name",user)
   console.log("Experiment", req.files);
 
   const videoResponse = await uploadOnCloudinary(videoPath); // Upload video

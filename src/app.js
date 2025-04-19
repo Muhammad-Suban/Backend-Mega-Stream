@@ -17,6 +17,7 @@ const app = express();
 app.use(cors({
   origin: ["http://localhost:5173", "https://stream-on-one.vercel.app"],
   credentials: true
+  
 }))
 
 app.use(express.json({ limit: "16kb" }));
