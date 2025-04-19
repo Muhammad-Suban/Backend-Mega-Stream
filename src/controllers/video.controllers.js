@@ -22,6 +22,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
   }
   if (userId && mongoose.Types.ObjectId.isValid(userId)) {
     filter.ownerName = userId; // Assuming ownerName stores the channel/user ID
+    
   }
 
   // Count documents that match the filter
@@ -35,11 +36,13 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
   // Fetch videos with filtering, sorting, and pagination
   const videos = await Video.find(filter)
-    .sort(sortOptions)
-    .skip((page - 1) * limit)
-    .limit(limit)
-    .exec();
-    console.log("blalasflfpokfsaf",videos)
+    // .sort(sortOptions)
+    // .skip((page - 1) * limit)
+    // .limit(limit)
+    // .exec()
+    .populate("ownerName", "userName fullName")
+    .sort({ createdAt: -1 });
+    console.log("get all videos successfully",videos)
 
   return res
     .status(200)
@@ -47,7 +50,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
       new apiResponse(
         200,
         "Videos fetched successfully",
-        { totalVideos, totalPages, currentPage: page, videos },
+        { totalVideos, totalPages, currentPage: page, videos},
       )
     );
 });
