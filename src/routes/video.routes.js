@@ -12,7 +12,7 @@ import {
 
 const router = Router();
 
-router.use(JWTVerify); // Apply verifyJWT middleware to all routes in this file
+// router.use(JWTVerify); // Apply verifyJWT middleware to all routes in this file
 
 router
   .route("/")
@@ -29,9 +29,9 @@ router
 router
   .route("/:videoId")
   .get(getVideoById)
-  .delete(deleteVideo)
-  .patch(upload.single("thumbnailFile"), updateVideo);
+  .delete(deleteVideo,JWTVerify)
+  .patch(upload.single("thumbnailFile"), updateVideo,JWTVerify);
 
-router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
+router.route("/toggle/publish/:videoId").patch(togglePublishStatus,JWTVerify);
 
 export default router;
