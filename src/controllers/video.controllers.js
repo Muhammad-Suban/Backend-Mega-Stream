@@ -22,7 +22,6 @@ const getAllVideos = asyncHandler(async (req, res) => {
   }
   if (userId && mongoose.Types.ObjectId.isValid(userId)) {
     filter.ownerName = userId; // Assuming ownerName stores the channel/user ID
-    
   }
 
   // Count documents that match the filter
@@ -36,28 +35,29 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
   // Fetch videos with filtering, sorting, and pagination
   const videos = await Video.find(filter)
-    .sort(sortOptions)
-    .skip((page - 1) * limit)
-    .limit(limit)
-    .exec()
     .populate("ownerName", "userName fullName avator")
+    // .sort(sortOptions)
+    // .skip((page - 1) * limit)
+    // .limit(limit)
+    // .exec()
     .sort({ createdAt: -1 });
-    console.log("get all videos successfully",videos)
+  console.log("get all videos successfully", videos);
 
   return res
     .status(200)
     .json(
-      new apiResponse(
-        200,
-        "Videos fetched successfully",
-        { totalVideos, totalPages, currentPage: page, videos},
-      )
+      new apiResponse(200, "Videos fetched successfully", {
+        totalVideos,
+        totalPages,
+        currentPage: page,
+        videos,
+      })
     );
 });
 
 const publishAVideo = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
-  const user = req.user
+  const user = req.user;
 
   if (
     !title ||
@@ -75,8 +75,8 @@ const publishAVideo = asyncHandler(async (req, res) => {
   const thumbnailPath = req.files.thumbnailFile[0]?.path; // Thumbnail file path
   console.log("check video path", videoPath);
   console.log("check thumb path", thumbnailPath);
-  console.log("Owner Name",req.user._id)
-  console.log("Owner Name",user)
+  console.log("Owner Name", req.user._id);
+  console.log("Owner Name", user);
   console.log("Experiment", req.files);
 
   const videoResponse = await uploadOnCloudinary(videoPath); // Upload video
@@ -113,7 +113,7 @@ const getVideoById = asyncHandler(async (req, res) => {
   }
   return res
     .status(200)
-    .json(new apiResponse(200, "Video successfully retrieved",video));
+    .json(new apiResponse(200, "Video successfully retrieved", video));
 });
 
 const updateVideo = asyncHandler(async (req, res) => {
@@ -146,14 +146,14 @@ const updateVideo = asyncHandler(async (req, res) => {
   let updatedThumbnail;
   if (req.file?.path) {
     const updatedThumbnailPath = req.file?.path;
-    console.log(updatedThumbnailPath)
+    console.log(updatedThumbnailPath);
     const thumbnailFile = await uploadOnCloudinary(updatedThumbnailPath);
     if (!thumbnailFile.url) {
       throw new apiError(400, "Error while uploading to cloudinary");
     }
-    console.log(thumbnailFile)
+    console.log(thumbnailFile);
     updatedThumbnail = thumbnailFile.url;
-    console.log(updatedThumbnail)
+    console.log(updatedThumbnail);
   }
   const updateVideo = await Video.findByIdAndUpdate(
     videoId,
@@ -162,7 +162,7 @@ const updateVideo = asyncHandler(async (req, res) => {
         ...(title && { title }),
         ...(description && { description }),
         // ...(updatedThumbnail && { updatedThumbnail }),
-        ...(updatedThumbnail && {thumbnailFile: updatedThumbnail})
+        ...(updatedThumbnail && { thumbnailFile: updatedThumbnail }),
       },
     },
     {
