@@ -156,7 +156,7 @@ const userLogin = asyncHandler(async (req, res) => {
     secure: true,
     // secure: process.env.NODE_ENV === 'production', // Automatically switch based on environment
     // secure: false,
-    sameSite: 'None', // Ensure the cookie is sent in cross-origin requests
+    sameSite: "None", // Ensure the cookie is sent in cross-origin requests
   };
 
   return (
@@ -201,23 +201,23 @@ const userLogout = asyncHandler(async (req, res) => {
   const options = {
     httpOnly: true,
     secure: true,
+    sameSite: "None", // Ensure the cookie is sent in cross-origin requests
     // secure: process.env.NODE_ENV === 'production', // Automatically switch based on environment
     // secure: false,
-    sameSite: 'None', // Ensure the cookie is sent in cross-origin requests
   };
 
   return res
     .status(201)
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
-    .json(new apiResponse(201, {}, "User Logged Out Successfully"));
+    .json(new apiResponse(200, {}, "User Logged Out Successfully"));
 });
 
 // generate new access token from refresh token
 // after expire we refresh the token user no need to signin again
 const accessRefreshTokens = asyncHandler(async (req, res) => {
   const incommingRefreshToken =
-    req.cookie?.refreshToken || req.body?.refreshToken;
+    req.cookies?.refreshToken || req.body?.refreshToken;
 
   if (!incommingRefreshToken) {
     throw new apiError(401, "can't get token");
@@ -249,8 +249,8 @@ const accessRefreshTokens = asyncHandler(async (req, res) => {
 
     return res
       .status(201)
-      .cookie("accessToken", options, accessToken)
-      .cookie("refreshToken", options, newRefreshToken)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", newRefreshToken, options)
       .json(
         new apiResponse(
           201,
@@ -298,7 +298,7 @@ const currentUser = asyncHandler(async (req, res) => {
   // 2* return user data with token
   return res
     .status(201)
-    .json(new apiResponse(201, "Current User Successfully",req.user, ));
+    .json(new apiResponse(201, "Current User Successfully", req.user));
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
