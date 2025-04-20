@@ -36,11 +36,11 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
   // Fetch videos with filtering, sorting, and pagination
   const videos = await Video.find(filter)
-    // .sort(sortOptions)
-    // .skip((page - 1) * limit)
-    // .limit(limit)
-    // .exec()
-    .populate("ownerName", "userName fullName")
+    .sort(sortOptions)
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .exec()
+    .populate("ownerName", "userName fullName avator")
     .sort({ createdAt: -1 });
     console.log("get all videos successfully",videos)
 
