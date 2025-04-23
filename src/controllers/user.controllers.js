@@ -91,20 +91,32 @@ const userRegister = asyncHandler(async (req, res) => {
   });
 
   //6** remove password and token
-  // every User create mongo db add automatically _id so we used to validate
+
   const userCreated = await User.findById(user._id).select(
     "-password -refreshToken"
-  ); //select the fields & remove field by - sign both fields are remove
+  );
 
   if (!userCreated) {
     throw new apiError(500, "something wrong in User registration");
   }
   console.log("User Finally Registered", userCreated);
 
+  const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
+    userCreated?._id
+  );
+  const options = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+    expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+  };
+
   //7** send response
   return res
-    .status(200)
-    .json(new apiResponse(200, userCreated, "User Created Successfully"));
+    .status(201)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(new apiResponse(201, userCreated, "User Created Successfully"));
 });
 
 const userLogin = asyncHandler(async (req, res) => {
@@ -157,6 +169,7 @@ const userLogin = asyncHandler(async (req, res) => {
     // secure: process.env.NODE_ENV === 'production', // Automatically switch based on environment
     // secure: false,
     sameSite: "None", // Ensure the cookie is sent in cross-origin requests
+    expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
   };
 
   return (
