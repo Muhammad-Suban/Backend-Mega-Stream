@@ -237,7 +237,7 @@ const accessRefreshTokens = asyncHandler(async (req, res) => {
   }
 
   try {
-    const decodedToken = jwt.verify(
+    const decodedToken = await jwt.verify(
       incommingRefreshToken,
       process.env.REFRESH_TOKEN_SECRET
     );
@@ -255,6 +255,7 @@ const accessRefreshTokens = asyncHandler(async (req, res) => {
     const options = {
       httpOnly: true,
       secure: true,
+      // sameSite: "None",
     };
 
     const { accessToken, newRefreshToken } =
